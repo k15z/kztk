@@ -1,0 +1,4 @@
+include README.md
+include kztk/**/*.pkl
+include kztk/toxic/*.pkl
+include kztk/toxic/model.pkl
