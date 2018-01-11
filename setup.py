@@ -9,9 +9,9 @@ setup(
     author_email='kevz@mit.edu',
     keywords='nlp deep learning',
     license='MIT License',
-    packages=['kztk',"kztk.toxic"],
+    packages=['kztk','kztk.toxic','kztk.plagiarist'],
     install_requires=[
-        'nltk',
+        'nltk'
     ],
     include_package_data=True
 )
