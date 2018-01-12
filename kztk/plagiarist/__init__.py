@@ -2,6 +2,7 @@
 Detect idea reuse / plagiarism in a sequence of documents.
 """
 import difflib
+import multiprocessing as mp
 
 def _max(arr):
     arr = list(arr) # maybe not a good idea?
@@ -21,6 +22,16 @@ class Plagiarist(object):
     def observe(self, document):
         raise NotImplementedError()
 
+def score(matcher, document, top_N):
+    matcher.set_seq1(document)
+    lengths = [n for i, j, n in matcher.get_matching_blocks()]
+    if len(lengths) > top_N:
+        lengths = list(sorted(lengths))[-top_N:] # top N substrings
+    return {
+        "total": sum(lengths),
+        "average": _mean(lengths)
+    }
+
 class LCSPlagiarist(Plagiarist):
     """
     Find the N longest common substrings in previous documents and compute max/mean statistics.
@@ -38,18 +49,14 @@ class LCSPlagiarist(Plagiarist):
         self.top_N = top_N
         self.aggregate = aggregate
         self.matchers = []
+        self.pool = mp.Pool()
 
     def observe(self, document):
-        scores = []
+        results = []
         for matcher in self.matchers:
-            matcher.set_seq1(document)
-            lengths = [n for i, j, n in matcher.get_matching_blocks()]
-            if len(lengths) > self.top_N:
-                lengths = list(sorted(lengths))[-self.top_N:] # top N substrings
-            scores.append({
-                "total": sum(lengths),
-                "average": _mean(lengths)
-            })
+            results.append(self.pool.apply_async(score, (matcher, document, self.top_N)))
+
+        scores = [res.get() for res in results]
         self.matchers.append(difflib.SequenceMatcher(b=document))
 
         if self.aggregate:
