@@ -8,6 +8,7 @@ Utilities, pre-trained models, and more.
 > pip install --upgrade git+git://github.com/k15z/kztk.git
 
 ## examples
+### toxicity
 ```
 import kztk.toxic as toxic
 
@@ -20,4 +21,13 @@ result == {
     'toxic': 0.698431670665741, 
     'severe': 0.0460701622068882
 }
+```
+
+### plagiarism (copy-and-paste)
+```
+from kztk.plagiarist import LCSPlagiarist
+lcsp = LCSPlagiarist()
+print(lcsp.observe("hello world"))
+print(lcsp.observe("hello world 2")) # high score
+print(lcsp.observe("this is a novel idea")) # low score
 ```
